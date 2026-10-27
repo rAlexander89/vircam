@@ -1,0 +1,24 @@
+// Build settings shared by the app and the camera extension.
+// To sign with your Apple Developer team (required to activate the camera extension),
+// copy Local.xcconfig.example to Local.xcconfig and fill it in.
+
+VIRACM_BUNDLE_ID = dev.viracm.Viracm
+VIRACM_SIGNED = NO
+DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"
+
+VIRACM_APP_ENTITLEMENTS_NO = App/Viracm-AdHoc.entitlements
+VIRACM_APP_ENTITLEMENTS_YES = App/Viracm.entitlements
+VIRACM_APP_ENTITLEMENTS = $(VIRACM_APP_ENTITLEMENTS_$(VIRACM_SIGNED))
+
+VIRACM_SIGN_IDENTITY_NO = -
+VIRACM_SIGN_IDENTITY_YES = Apple Development
+VIRACM_SIGN_IDENTITY = $(VIRACM_SIGN_IDENTITY_$(VIRACM_SIGNED))
+
+VIRACM_SIGN_STYLE_NO = Manual
+VIRACM_SIGN_STYLE_YES = Automatic
+VIRACM_SIGN_STYLE = $(VIRACM_SIGN_STYLE_$(VIRACM_SIGNED))
+
+VIRACM_CORE_BUILD_DIR = $(PROJECT_DIR)/../build/core/xcode-$(CONFIGURATION)
+VIRACM_ORT_DIR = $(PROJECT_DIR)/../third_party/onnxruntime

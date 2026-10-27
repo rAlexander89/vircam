@@ -1,0 +1,7 @@
+build/
+mac/Viracm.xcodeproj/
+mac/Config/Local.xcconfig
+models/
+.DS_Store
+xcuserdata/
+third_party/
