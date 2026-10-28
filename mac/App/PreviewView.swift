@@ -47,11 +47,34 @@ struct PreviewView: NSViewRepresentable {
     let renderer: PreviewRenderer
 
     func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        view.wantsLayer = true
-        view.layer = renderer.layer
-        return view
+        MirroredLayerView(contentLayer: renderer.layer)
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+/// Shows a layer flipped horizontally, like the self-view in Zoom and Meet. Only the
+/// preview is mirrored; video sent to calling apps is not, so others see you unflipped.
+private final class MirroredLayerView: NSView {
+    private let contentLayer: CALayer
+
+    init(contentLayer: CALayer) {
+        self.contentLayer = contentLayer
+        super.init(frame: .zero)
+        wantsLayer = true
+        contentLayer.setAffineTransform(CGAffineTransform(scaleX: -1, y: 1))
+        layer?.addSublayer(contentLayer)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    override func layout() {
+        super.layout()
+        // `frame` is undefined while a transform is set; position via bounds instead.
+        contentLayer.bounds = CGRect(origin: .zero, size: bounds.size)
+        contentLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+    }
 }

@@ -10,7 +10,7 @@ struct ContentView: View {
                 .frame(minWidth: 480)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            Text("Preview shows exactly what calling apps receive.")
+            Text("Mirrored like your self-view in Zoom and Meet. Others see you unmirrored.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
