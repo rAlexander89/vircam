@@ -1,11 +1,11 @@
-name: Viracm
+name: Vircam
 options:
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
 configFiles:
-  Debug: Config/Viracm.xcconfig
-  Release: Config/Viracm.xcconfig
+  Debug: Config/Vircam.xcconfig
+  Release: Config/Vircam.xcconfig
 settings:
   base:
     ARCHS: arm64
@@ -14,7 +14,7 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 targets:
-  Viracm:
+  Vircam:
     type: application
     platform: macOS
     sources:
@@ -23,21 +23,22 @@ targets:
       - path: ../models/face_detection_yunet_2023mar.onnx
         buildPhase: resources
     dependencies:
-      - target: ViracmCamera
+      - target: VircamCamera
     scheme: {}
     settings:
       base:
-        PRODUCT_NAME: Viracm
-        PRODUCT_BUNDLE_IDENTIFIER: $(VIRACM_BUNDLE_ID)
+        PRODUCT_NAME: Vircam
+        PRODUCT_BUNDLE_IDENTIFIER: $(VIRCAM_BUNDLE_ID)
         INFOPLIST_FILE: App/Info.plist
-        CODE_SIGN_ENTITLEMENTS: $(VIRACM_APP_ENTITLEMENTS)
-        CODE_SIGN_IDENTITY: $(VIRACM_SIGN_IDENTITY)
-        CODE_SIGN_STYLE: $(VIRACM_SIGN_STYLE)
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: $(VIRCAM_APP_ENTITLEMENTS)
+        CODE_SIGN_IDENTITY: $(VIRCAM_SIGN_IDENTITY)
+        CODE_SIGN_STYLE: $(VIRCAM_SIGN_STYLE)
         ENABLE_HARDENED_RUNTIME: YES
-        SWIFT_OBJC_BRIDGING_HEADER: App/Viracm-Bridging-Header.h
+        SWIFT_OBJC_BRIDGING_HEADER: App/Vircam-Bridging-Header.h
         HEADER_SEARCH_PATHS: $(PROJECT_DIR)/../core/include
-        LIBRARY_SEARCH_PATHS: $(VIRACM_CORE_BUILD_DIR) $(VIRACM_ORT_DIR)/lib
-        OTHER_LDFLAGS: -lviracm_core -lonnxruntime -lc++
+        LIBRARY_SEARCH_PATHS: $(VIRCAM_CORE_BUILD_DIR) $(VIRCAM_ORT_DIR)/lib
+        OTHER_LDFLAGS: -lvircam_core -lonnxruntime -lc++
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
     preBuildScripts:
       - name: Build C++ core
@@ -45,14 +46,14 @@ targets:
         script: |
           set -euo pipefail
           export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-          if [ ! -f "$VIRACM_ORT_DIR/lib/libonnxruntime.dylib" ]; then
+          if [ ! -f "$VIRCAM_ORT_DIR/lib/libonnxruntime.dylib" ]; then
             echo "error: dependencies missing; run scripts/fetch_deps.sh"
             exit 1
           fi
           # Always optimized: the per-pixel code is far too slow at -O0.
-          cmake -S "$PROJECT_DIR/../core" -B "$VIRACM_CORE_BUILD_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DVIRACM_BUILD_TESTS=OFF -DVIRACM_BUILD_TOOLS=OFF
-          cmake --build "$VIRACM_CORE_BUILD_DIR"
+          cmake -S "$PROJECT_DIR/../core" -B "$VIRCAM_CORE_BUILD_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DVIRCAM_BUILD_TESTS=OFF -DVIRCAM_BUILD_TOOLS=OFF
+          cmake --build "$VIRCAM_CORE_BUILD_DIR"
     postCompileScripts:
       - name: Embed ONNX Runtime
         basedOnDependencyAnalysis: false
@@ -61,9 +62,9 @@ targets:
           # The library's install name is @rpath/libonnxruntime.1.dylib.
           dest="$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH/libonnxruntime.1.dylib"
           mkdir -p "$(dirname "$dest")"
-          cp -f "$VIRACM_ORT_DIR/lib/libonnxruntime.1.dylib" "$dest"
+          cp -f "$VIRCAM_ORT_DIR/lib/libonnxruntime.1.dylib" "$dest"
           codesign --force --options runtime --timestamp=none --sign "$EXPANDED_CODE_SIGN_IDENTITY" "$dest"
-  ViracmCamera:
+  VircamCamera:
     type: system-extension
     platform: macOS
     sources:
@@ -71,11 +72,11 @@ targets:
       - Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: $(VIRACM_BUNDLE_ID).CameraExtension
+        PRODUCT_BUNDLE_IDENTIFIER: $(VIRCAM_BUNDLE_ID).CameraExtension
         PRODUCT_NAME: $(PRODUCT_BUNDLE_IDENTIFIER)
         INFOPLIST_FILE: CameraExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: CameraExtension/CameraExtension.entitlements
-        CODE_SIGN_IDENTITY: $(VIRACM_SIGN_IDENTITY)
-        CODE_SIGN_STYLE: $(VIRACM_SIGN_STYLE)
+        CODE_SIGN_IDENTITY: $(VIRCAM_SIGN_IDENTITY)
+        CODE_SIGN_STYLE: $(VIRCAM_SIGN_STYLE)
         ENABLE_HARDENED_RUNTIME: YES
         SKIP_INSTALL: YES

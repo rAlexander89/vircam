@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 
-namespace viracm {
+namespace vircam {
 namespace {
 
 // Non-primary faces inside the sharp region are blurred this much more than the background.
@@ -16,7 +16,7 @@ float outside_distance(const Box &box, float px, float py) {
 
 float box_feather(const Box &box) { return std::max(2.0f, 0.1f * box.w); }
 
-void stroke_rect(viracm_image &img, const Box &box, uint8_t b, uint8_t g, uint8_t r, int thickness) {
+void stroke_rect(vircam_image &img, const Box &box, uint8_t b, uint8_t g, uint8_t r, int thickness) {
     const PixelRange o = clip(box.x, box.y, box.x + box.w, box.y + box.h, img.width, img.height);
     for (int y = o.y0; y < o.y1; ++y) {
         uint8_t *row = img.data + static_cast<size_t>(y) * img.stride;
@@ -33,7 +33,7 @@ void stroke_rect(viracm_image &img, const Box &box, uint8_t b, uint8_t g, uint8_
 
 }  // namespace
 
-void Compositor::render(const viracm_image &in, viracm_image &out, const PolicyDecision &decision,
+void Compositor::render(const vircam_image &in, vircam_image &out, const PolicyDecision &decision,
                         const AlphaMap &primary) {
     const float sigma = in.width * kBlurSigmaFraction;
 
@@ -87,10 +87,10 @@ void Compositor::render(const viracm_image &in, viracm_image &out, const PolicyD
     }
 }
 
-void Compositor::draw_debug(viracm_image &out, const PolicyDecision &decision) {
+void Compositor::draw_debug(vircam_image &out, const PolicyDecision &decision) {
     const int thickness = std::max(2, out.width / 400);
     if (decision.primary_face) stroke_rect(out, *decision.primary_face, 0, 220, 0, thickness);
     for (const Box &box : decision.blur_boxes) stroke_rect(out, box, 0, 0, 230, thickness);
 }
 
-}  // namespace viracm
+}  // namespace vircam

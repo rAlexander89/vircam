@@ -1,6 +1,6 @@
 #include "privacy_policy.hpp"
 
-namespace viracm {
+namespace vircam {
 
 void PrivacyPolicy::reset() {
     primary_id_ = 0;
@@ -71,4 +71,4 @@ PolicyDecision PrivacyPolicy::decide(const std::vector<Track> &tracks, double t,
     return decision;
 }
 
-}  // namespace viracm
+}  // namespace vircam

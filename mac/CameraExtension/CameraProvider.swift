@@ -2,12 +2,12 @@ import CoreMediaIO
 import Foundation
 import os.log
 
-let logger = Logger(subsystem: "dev.viracm.CameraExtension", category: "camera")
+let logger = Logger(subsystem: "dev.vircam.CameraExtension", category: "camera")
 
-/// The Viracm Camera device. It has two streams:
-/// - a sink stream the Viracm app pushes processed frames into, and
+/// The Vircam Camera device. It has two streams:
+/// - a sink stream the Vircam app pushes processed frames into, and
 /// - a source stream calling apps read from.
-/// Calling apps only ever see frames from the Viracm app, or the placeholder when the
+/// Calling apps only ever see frames from the Vircam app, or the placeholder when the
 /// app is not sending. The extension never touches the real camera.
 final class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
     private(set) var provider: CMIOExtensionProvider!
@@ -51,7 +51,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource {
     private var placeholder: CVPixelBuffer!
 
     // Everything below is only accessed on `queue`.
-    private let queue = DispatchQueue(label: "dev.viracm.camera.frames", qos: .userInteractive)
+    private let queue = DispatchQueue(label: "dev.vircam.camera.frames", qos: .userInteractive)
     private var timer: DispatchSourceTimer?
     private var sourceClientCount = 0
     private var sinkClient: CMIOExtensionClient?
@@ -80,7 +80,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource {
                                                maxFrameDuration: frameDuration,
                                                minFrameDuration: frameDuration,
                                                validFrameDurations: nil)
-        let appSigningID = Bundle.main.object(forInfoDictionaryKey: "ViracmAppSigningIdentifier") as? String
+        let appSigningID = Bundle.main.object(forInfoDictionaryKey: "VircamAppSigningIdentifier") as? String
         sourceStream = SourceStreamSource(format: format, frameDuration: frameDuration, device: self)
         sinkStream = SinkStreamSource(format: format, frameDuration: frameDuration,
                                       allowedSigningID: appSigningID, device: self)
@@ -234,7 +234,7 @@ final class SourceStreamSource: NSObject, CMIOExtensionStreamSource {
         self.frameDuration = frameDuration
         self.device = device
         super.init()
-        stream = CMIOExtensionStream(localizedName: "Viracm Video",
+        stream = CMIOExtensionStream(localizedName: "Vircam Video",
                                      streamID: VirtualCamera.sourceStreamID,
                                      direction: .source,
                                      clockType: .hostTime,
@@ -266,7 +266,7 @@ final class SourceStreamSource: NSObject, CMIOExtensionStreamSource {
     func stopStream() throws { device.sourceStopped() }
 }
 
-/// The stream the Viracm app writes processed frames into. Only the Viracm app may
+/// The stream the Vircam app writes processed frames into. Only the Vircam app may
 /// write to it, so no other process can inject video into the camera.
 final class SinkStreamSource: NSObject, CMIOExtensionStreamSource {
     private(set) var stream: CMIOExtensionStream!
@@ -282,7 +282,7 @@ final class SinkStreamSource: NSObject, CMIOExtensionStreamSource {
         self.allowedSigningID = allowedSigningID
         self.device = device
         super.init()
-        stream = CMIOExtensionStream(localizedName: "Viracm Input",
+        stream = CMIOExtensionStream(localizedName: "Vircam Input",
                                      streamID: VirtualCamera.sinkStreamID,
                                      direction: .sink,
                                      clockType: .hostTime,

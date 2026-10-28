@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 
-namespace viracm {
+namespace vircam {
 namespace {
 
 // Pixels excluded by a weight function still count this much, so a cell surrounded
@@ -25,7 +25,7 @@ std::vector<float> gaussian_kernel(float sigma) {
 
 }  // namespace
 
-void GaussianBlur::build(const viracm_image &in, int downsample, float sigma, const WeightFn &weight) {
+void GaussianBlur::build(const vircam_image &in, int downsample, float sigma, const WeightFn &weight) {
     const int factor = std::max(1, downsample);
     scale_ = static_cast<float>(factor);
     cols_ = (in.width + factor - 1) / factor;
@@ -141,7 +141,7 @@ void GaussianBlur::sample(float x, float y, float bgr[3]) const {
     }
 }
 
-void GaussianBlur::render(viracm_image &out, int x0, int y0, int x1, int y1) const {
+void GaussianBlur::render(vircam_image &out, int x0, int y0, int x1, int y1) const {
     x0 = std::max(0, x0);
     y0 = std::max(0, y0);
     x1 = std::min(out.width, x1);
@@ -182,10 +182,10 @@ void GaussianBlur::render(viracm_image &out, int x0, int y0, int x1, int y1) con
     }
 }
 
-void privacy_blur(const viracm_image &in, viracm_image &out) {
+void privacy_blur(const vircam_image &in, vircam_image &out) {
     GaussianBlur blur;
     blur.build(in, kBlurDownsample, in.width * kBlurSigmaFraction);
     blur.render(out);
 }
 
-}  // namespace viracm
+}  // namespace vircam

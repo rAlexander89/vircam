@@ -7,7 +7,15 @@ import Foundation
 final class AppController: ObservableObject {
     @Published private(set) var cameras: [CameraInfo] = []
     @Published var selectedCameraID: String? {
-        didSet { if selectedCameraID != oldValue { startSelectedCamera() } }
+        didSet {
+            guard selectedCameraID != oldValue else { return }
+            if let selectedCameraID { UserDefaults.standard.set(selectedCameraID, forKey: Self.cameraKey) }
+            if isOn { startSelectedCamera() }
+        }
+    }
+    /// Off stops the physical camera; calling apps then see the "not running" placeholder.
+    @Published var isOn = true {
+        didSet { if isOn != oldValue { isOn ? startSelectedCamera() : stopCamera() } }
     }
     @Published var debugOverlay = false {
         didSet { pipeline?.setDebugOverlay(debugOverlay) }
@@ -18,14 +26,19 @@ final class AppController: ObservableObject {
     @Published private(set) var performanceStatus = "—"
     @Published private(set) var virtualCameraConnected = false
     @Published private(set) var installStatus: String?
+    @Published private(set) var needsCameraAccess = false
 
     let preview = PreviewRenderer()
+    let updater = Updater()
+    let loginItem = LoginItem()
 
     private let capture = CameraCapture()
     private let pipeline: Pipeline?
     private let pipelineError: String?
     private let installer = ExtensionInstaller()
     private var statusTimer: Timer?
+    private var deviceObservers: [NSObjectProtocol] = []
+    private static let cameraKey = "selectedCameraID"
 
     init() {
         do {
@@ -42,17 +55,36 @@ final class AppController: ObservableObject {
             MainActor.assumeIsolated { self?.refreshStatus() }
         }
         Task { await start() }
+        updater.start()
+    }
+
+    func allowCameraAccess() {
+        if let error = CameraPermission.grantAndRelaunch() {
+            cameraStatus = error
+        }
     }
 
     func installCamera() {
         installer.activate()
     }
 
+    /// Uses the camera picked last time if it's connected, otherwise the built-in camera.
     func refreshCameras() {
         cameras = CameraCapture.availableCameras()
-        if selectedCameraID == nil || !cameras.contains(where: { $0.id == selectedCameraID }) {
-            selectedCameraID = cameras.first?.id
+        let saved = UserDefaults.standard.string(forKey: Self.cameraKey)
+        if let saved, cameras.contains(where: { $0.id == saved }) {
+            if selectedCameraID != saved { selectSilently(saved) }
+        } else if selectedCameraID == nil || !cameras.contains(where: { $0.id == selectedCameraID }) {
+            selectSilently(cameras.first?.id)
         }
+    }
+
+    /// Selects a camera without remembering it, so an automatic fallback doesn't
+    /// replace the user's choice.
+    private func selectSilently(_ id: String?) {
+        let saved = UserDefaults.standard.string(forKey: Self.cameraKey)
+        selectedCameraID = id
+        UserDefaults.standard.set(saved, forKey: Self.cameraKey)
     }
 
     private func start() async {
@@ -61,8 +93,18 @@ final class AppController: ObservableObject {
             return
         }
         guard await CameraCapture.requestAccess() else {
-            cameraStatus = "Camera access denied. Allow Viracm in System Settings › Privacy & Security › Camera."
+            needsCameraAccess = true
+            cameraStatus = "Vircam needs camera access."
+            // Each new unsigned build loses camera access; ask once per build automatically.
+            if !CameraPermission.alreadyPromptedForThisBuild {
+                allowCameraAccess()
+            }
             return
+        }
+        for name in [AVCaptureDevice.wasConnectedNotification, AVCaptureDevice.wasDisconnectedNotification] {
+            deviceObservers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.refreshCameras() }
+            })
         }
         refreshCameras()
         if cameras.isEmpty {
@@ -71,7 +113,7 @@ final class AppController: ObservableObject {
     }
 
     private func startSelectedCamera() {
-        guard let selectedCameraID else { return }
+        guard isOn, let selectedCameraID else { return }
         do {
             try capture.start(cameraID: selectedCameraID)
             cameraStatus = "Running"
@@ -80,9 +122,21 @@ final class AppController: ObservableObject {
         }
     }
 
+    private func stopCamera() {
+        capture.stop()
+        preview.clear()
+        cameraStatus = "Off"
+    }
+
     private func refreshStatus() {
         guard let stats = pipeline?.takeStats() else { return }
         virtualCameraConnected = stats.virtualCameraConnected
+        if !isOn {
+            protectionStatus = "—"
+            facesStatus = "—"
+            performanceStatus = "—"
+            return
+        }
         if stats.frames == 0 {
             protectionStatus = "No frames"
             facesStatus = "—"
@@ -128,8 +182,8 @@ private final class Pipeline: @unchecked Sendable {
     private let preview: PreviewRenderer
     private var lastConnectAttempt = Date.distantPast
 
-    private let segmentQueue = DispatchQueue(label: "dev.viracm.segment", qos: .userInteractive)
-    private let processQueue = DispatchQueue(label: "dev.viracm.process", qos: .userInteractive)
+    private let segmentQueue = DispatchQueue(label: "dev.vircam.segment", qos: .userInteractive)
+    private let processQueue = DispatchQueue(label: "dev.vircam.process", qos: .userInteractive)
 
     private let lock = NSLock()
     private var segmentBusy = false
@@ -194,7 +248,7 @@ private final class Pipeline: @unchecked Sendable {
         stats.frames += 1
         stats.totalMilliseconds += info.process_ms
         stats.segmentMilliseconds += segmentMilliseconds
-        if info.mode == VIRACM_FRAME_FULL_BLUR {
+        if info.mode == VIRCAM_FRAME_FULL_BLUR {
             stats.fullBlurFrames += 1
         } else if info.used_person_mask != 0 {
             stats.outlineFrames += 1

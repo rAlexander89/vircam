@@ -1,6 +1,6 @@
 // Runs the privacy pipeline on a still image, for testing without a camera.
 //
-//   viracm_cli <model_dir> <input image> <output.png> [--debug] [--frames N]
+//   vircam_cli <model_dir> <input image> <output.png> [--debug] [--frames N]
 //
 // A still image is fed as N consecutive frames at 30 fps (default 15), since a face
 // must be seen in several frames before it can be kept sharp.
@@ -13,7 +13,7 @@
 
 #include "stb_image.h"
 #include "stb_image_write.h"
-#include "viracm/viracm.h"
+#include "vircam/vircam.h"
 
 namespace {
 
@@ -22,7 +22,7 @@ void swap_red_blue(std::vector<uint8_t> &pixels) {
 }
 
 int usage() {
-    std::fprintf(stderr, "usage: viracm_cli <model_dir> <input image> <output.png> [--debug] [--frames N]\n");
+    std::fprintf(stderr, "usage: vircam_cli <model_dir> <input image> <output.png> [--debug] [--frames N]\n");
     return 2;
 }
 
@@ -57,28 +57,28 @@ int main(int argc, char **argv) {
     std::vector<uint8_t> output(input.size());
 
     char error[512] = {0};
-    viracm_engine *engine = viracm_engine_create(model_dir, error, sizeof(error));
+    vircam_engine *engine = vircam_engine_create(model_dir, error, sizeof(error));
     if (!engine) {
         std::fprintf(stderr, "error: cannot create engine: %s\n", error);
         return 1;
     }
-    viracm_engine_set_debug_overlay(engine, debug);
+    vircam_engine_set_debug_overlay(engine, debug);
 
-    viracm_image in{input.data(), width, height, width * 4};
-    viracm_image out{output.data(), width, height, width * 4};
-    viracm_frame_info info{};
+    vircam_image in{input.data(), width, height, width * 4};
+    vircam_image out{output.data(), width, height, width * 4};
+    vircam_frame_info info{};
     double total_ms = 0;
     for (int frame = 0; frame < frames; ++frame) {
-        if (viracm_engine_process(engine, &in, &out, frame / 30.0, &info) != VIRACM_OK) {
+        if (vircam_engine_process(engine, &in, &out, frame / 30.0, &info) != VIRCAM_OK) {
             std::fprintf(stderr, "error: processing failed\n");
             return 1;
         }
         total_ms += info.process_ms;
     }
-    viracm_engine_destroy(engine);
+    vircam_engine_destroy(engine);
 
     std::printf("%dx%d  mode=%s  faces_detected=%d  faces_blurred=%d  avg=%.1f ms/frame\n", width, height,
-                info.mode == VIRACM_FRAME_PROTECTED ? "protected" : "full_blur", info.faces_detected,
+                info.mode == VIRCAM_FRAME_PROTECTED ? "protected" : "full_blur", info.faces_detected,
                 info.faces_blurred, total_ms / frames);
 
     swap_red_blue(output);

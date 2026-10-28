@@ -3,7 +3,7 @@ import CoreText
 import CoreVideo
 import Foundation
 
-/// The frame calling apps see when the Viracm app is not sending video.
+/// The frame calling apps see when the Vircam app is not sending video.
 enum PlaceholderFrame {
     static func make(width: Int, height: Int) -> CVPixelBuffer {
         var pixelBuffer: CVPixelBuffer?
@@ -28,9 +28,9 @@ enum PlaceholderFrame {
         context.setFillColor(CGColor(srgbRed: 0.12, green: 0.12, blue: 0.14, alpha: 1))
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
 
-        drawCentered("Viracm is not running", size: CGFloat(height) / 16, alpha: 0.9,
+        drawCentered("Vircam is not running", size: CGFloat(height) / 16, alpha: 0.9,
                      y: CGFloat(height) * 0.52, in: context, width: width)
-        drawCentered("Open the Viracm app to turn on your camera", size: CGFloat(height) / 32, alpha: 0.55,
+        drawCentered("Open the Vircam app to turn on your camera", size: CGFloat(height) / 32, alpha: 0.55,
                      y: CGFloat(height) * 0.44, in: context, width: width)
         return pixelBuffer
     }

@@ -1,7 +1,7 @@
 import CoreImage
 import Foundation
 
-/// `Viracm.app/Contents/MacOS/Viracm --process-image <input> <output.png> [--debug]`
+/// `Vircam.app/Contents/MacOS/Vircam --process-image <input> <output.png> [--debug]`
 ///
 /// Runs the full Mac pipeline (Vision outlines + core) on a still image, for testing
 /// without a camera. The image is fed as 15 frames at 30 fps, since a face must be seen
@@ -11,7 +11,7 @@ enum ImageTool {
         let rest = Array(arguments.drop { $0 != "--process-image" }.dropFirst())
         let paths = rest.filter { !$0.hasPrefix("--") }
         guard paths.count == 2 else {
-            print("usage: Viracm --process-image <input> <output.png> [--debug]")
+            print("usage: Vircam --process-image <input> <output.png> [--debug]")
             return 2
         }
         guard let image = CIImage(contentsOf: URL(fileURLWithPath: paths[0])) else {
@@ -35,7 +35,7 @@ enum ImageTool {
             let processor = try FrameProcessor(modelDirectory: Bundle.main.resourcePath ?? "")
             processor.debugOverlay = rest.contains("--debug")
             let masks = PersonSegmenter().masks(for: input)
-            var info: viracm_frame_info?
+            var info: vircam_frame_info?
             for frame in 0..<15 {
                 info = processor.process(input, into: output, timestamp: Double(frame) / 30, masks: masks)
             }
@@ -43,7 +43,7 @@ enum ImageTool {
                 print("error: processing failed")
                 return 1
             }
-            print("\(width)x\(height)  mode=\(info.mode == VIRACM_FRAME_PROTECTED ? "protected" : "full_blur")",
+            print("\(width)x\(height)  mode=\(info.mode == VIRCAM_FRAME_PROTECTED ? "protected" : "full_blur")",
                   "people=\(masks.count)  outline=\(info.used_person_mask != 0)",
                   "faces_detected=\(info.faces_detected)  faces_blurred=\(info.faces_blurred)")
             try context.writePNGRepresentation(of: CIImage(cvPixelBuffer: output), to: URL(fileURLWithPath: paths[1]),

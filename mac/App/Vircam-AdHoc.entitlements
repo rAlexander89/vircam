@@ -5,5 +5,10 @@
 	<!-- Ad-hoc builds cannot carry the system-extension entitlement (it needs a provisioning profile). -->
 	<key>com.apple.security.device.camera</key>
 	<true/>
+	<!-- Ad-hoc signatures have no team ID, so the hardened runtime's library validation
+	     rejects the embedded ONNX Runtime dylib. Team-signed builds share a team ID and
+	     do not need this. -->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
 </dict>
 </plist>

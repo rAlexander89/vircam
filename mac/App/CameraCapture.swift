@@ -12,7 +12,7 @@ final class CameraCapture: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     private let session = AVCaptureSession()
     private let output = AVCaptureVideoDataOutput()
-    private let queue = DispatchQueue(label: "dev.viracm.capture", qos: .userInteractive)
+    private let queue = DispatchQueue(label: "dev.vircam.capture", qos: .userInteractive)
     private var currentInput: AVCaptureDeviceInput?
 
     override init() {
@@ -31,8 +31,8 @@ final class CameraCapture: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         session.commitConfiguration()
     }
 
-    /// Real cameras only. Virtual cameras (including Viracm's own) are excluded so the
-    /// app can never read its own output or another unprotected virtual feed.
+    /// Real cameras only, built-in first. Virtual cameras (including Vircam's own) are
+    /// excluded so the app can never read its own output or another unprotected virtual feed.
     static func availableCameras() -> [CameraInfo] {
         AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .external, .continuityCamera],
                                          mediaType: .video,
@@ -40,6 +40,7 @@ final class CameraCapture: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
             .devices
             .filter { UInt32(bitPattern: $0.transportType) != VirtualCamera.virtualTransportType }
             .filter { $0.uniqueID != VirtualCamera.deviceID.uuidString && $0.localizedName != VirtualCamera.deviceName }
+            .sorted { ($0.deviceType == .builtInWideAngleCamera ? 0 : 1) < ($1.deviceType == .builtInWideAngleCamera ? 0 : 1) }
             .map { CameraInfo(id: $0.uniqueID, name: $0.localizedName) }
     }
 

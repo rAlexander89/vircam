@@ -2,7 +2,7 @@ import CoreMedia
 import CoreMediaIO
 import Foundation
 
-/// Pushes processed frames into the Viracm Camera extension's sink stream using the
+/// Pushes processed frames into the Vircam Camera extension's sink stream using the
 /// CoreMediaIO hardware API. Not thread-safe: call from one queue.
 final class VirtualCameraOutput {
     private var deviceID: CMIODeviceID = 0
@@ -11,7 +11,7 @@ final class VirtualCameraOutput {
 
     var isConnected: Bool { queue != nil }
 
-    /// Finds the Viracm Camera device and starts its sink stream. Returns false if the
+    /// Finds the Vircam Camera device and starts its sink stream. Returns false if the
     /// extension is not installed or not running.
     @discardableResult
     func connect() -> Bool {

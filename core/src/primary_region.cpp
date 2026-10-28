@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace viracm {
+namespace vircam {
 namespace {
 
 // Mask values are remapped so [kMaskLow, kMaskHigh] becomes [0, 1]. This fills the
@@ -18,7 +18,7 @@ float sharpen(float m) {
     return t * t * (3 - 2 * t);  // smoothstep
 }
 
-float mask_value(const viracm_person_mask &mask, int mx, int my) {
+float mask_value(const vircam_person_mask &mask, int mx, int my) {
     const auto *row = reinterpret_cast<const float *>(reinterpret_cast<const uint8_t *>(mask.data) +
                                                       static_cast<size_t>(my) * mask.stride);
     return row[mx];
@@ -60,7 +60,7 @@ AlphaMap head_and_shoulders(const Box &face, int width, int height) {
     return map;
 }
 
-AlphaMap from_person_mask(const viracm_person_mask &mask, int width, int height) {
+AlphaMap from_person_mask(const vircam_person_mask &mask, int width, int height) {
     const float sx = static_cast<float>(mask.width) / width;  // mask pixels per frame pixel
     const float sy = static_cast<float>(mask.height) / height;
 
@@ -106,11 +106,11 @@ AlphaMap from_person_mask(const viracm_person_mask &mask, int width, int height)
     return map;
 }
 
-int select_person_mask(const viracm_person_mask *masks, int count, const Box &face, int width, int height) {
+int select_person_mask(const vircam_person_mask *masks, int count, const Box &face, int width, int height) {
     int best = -1;
     float best_coverage = kMinFaceCoverage;
     for (int i = 0; i < count; ++i) {
-        const viracm_person_mask &mask = masks[i];
+        const vircam_person_mask &mask = masks[i];
         if (!mask.data || mask.width <= 0 || mask.height <= 0 || mask.stride < mask.width * 4) continue;
         const float sx = static_cast<float>(mask.width) / width;
         const float sy = static_cast<float>(mask.height) / height;
@@ -129,4 +129,4 @@ int select_person_mask(const viracm_person_mask *masks, int count, const Box &fa
     return best;
 }
 
-}  // namespace viracm
+}  // namespace vircam

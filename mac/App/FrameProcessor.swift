@@ -12,30 +12,30 @@ final class FrameProcessor {
     private let outputPool: CVPixelBufferPool
 
     var debugOverlay = false {
-        didSet { viracm_engine_set_debug_overlay(engine, debugOverlay ? 1 : 0) }
+        didSet { vircam_engine_set_debug_overlay(engine, debugOverlay ? 1 : 0) }
     }
 
     /// `modelDirectory` must contain the core's model files.
     init(modelDirectory: String) throws {
         var message = [CChar](repeating: 0, count: 512)
-        guard let engine = viracm_engine_create(modelDirectory, &message, Int32(message.count)) else {
+        guard let engine = vircam_engine_create(modelDirectory, &message, Int32(message.count)) else {
             throw EngineError(errorDescription: "Could not start the processing engine: \(String(cString: message))")
         }
         self.engine = engine
         guard let pool = makeVirtualCameraPool() else {
-            viracm_engine_destroy(engine)
+            vircam_engine_destroy(engine)
             throw EngineError(errorDescription: "Could not allocate video buffers.")
         }
         outputPool = pool
     }
 
     deinit {
-        viracm_engine_destroy(engine)
+        vircam_engine_destroy(engine)
     }
 
     /// Processes a frame at the virtual camera's size into a new buffer. Returns nil if the
     /// frame could not be processed; such frames must be dropped, never shown raw.
-    func process(_ input: CVPixelBuffer, timestamp: CMTime, masks: [CVPixelBuffer]) -> (CVPixelBuffer, viracm_frame_info)? {
+    func process(_ input: CVPixelBuffer, timestamp: CMTime, masks: [CVPixelBuffer]) -> (CVPixelBuffer, vircam_frame_info)? {
         var output: CVPixelBuffer?
         CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, outputPool, &output)
         guard let output, let info = process(input, into: output, timestamp: timestamp.seconds, masks: masks) else {
@@ -47,7 +47,7 @@ final class FrameProcessor {
     /// Processes `input` into `output`; both BGRA and the same size. `masks` are person
     /// masks from `PersonSegmenter` for this same frame.
     func process(_ input: CVPixelBuffer, into output: CVPixelBuffer, timestamp: Double,
-                 masks: [CVPixelBuffer]) -> viracm_frame_info? {
+                 masks: [CVPixelBuffer]) -> vircam_frame_info? {
         CVPixelBufferLockBaseAddress(input, .readOnly)
         CVPixelBufferLockBaseAddress(output, [])
         masks.forEach { CVPixelBufferLockBaseAddress($0, .readOnly) }
@@ -59,24 +59,24 @@ final class FrameProcessor {
 
         var inImage = image(of: input)
         var outImage = image(of: output)
-        let personMasks = masks.compactMap { mask -> viracm_person_mask? in
+        let personMasks = masks.compactMap { mask -> vircam_person_mask? in
             guard CVPixelBufferGetPixelFormatType(mask) == kCVPixelFormatType_OneComponent32Float,
                   let base = CVPixelBufferGetBaseAddress(mask) else { return nil }
-            return viracm_person_mask(data: base.assumingMemoryBound(to: Float.self),
+            return vircam_person_mask(data: base.assumingMemoryBound(to: Float.self),
                                       width: Int32(CVPixelBufferGetWidth(mask)),
                                       height: Int32(CVPixelBufferGetHeight(mask)),
                                       stride: Int32(CVPixelBufferGetBytesPerRow(mask)))
         }
-        var info = viracm_frame_info()
+        var info = vircam_frame_info()
         let status = personMasks.withUnsafeBufferPointer { masksPointer in
-            viracm_engine_process_with_masks(engine, &inImage, &outImage, timestamp,
+            vircam_engine_process_with_masks(engine, &inImage, &outImage, timestamp,
                                              masksPointer.baseAddress, Int32(masksPointer.count), &info)
         }
-        return status == VIRACM_OK ? info : nil
+        return status == VIRCAM_OK ? info : nil
     }
 
-    private func image(of pixelBuffer: CVPixelBuffer) -> viracm_image {
-        viracm_image(data: CVPixelBufferGetBaseAddress(pixelBuffer)?.assumingMemoryBound(to: UInt8.self),
+    private func image(of pixelBuffer: CVPixelBuffer) -> vircam_image {
+        vircam_image(data: CVPixelBufferGetBaseAddress(pixelBuffer)?.assumingMemoryBound(to: UInt8.self),
                      width: Int32(CVPixelBufferGetWidth(pixelBuffer)),
                      height: Int32(CVPixelBufferGetHeight(pixelBuffer)),
                      stride: Int32(CVPixelBufferGetBytesPerRow(pixelBuffer)))

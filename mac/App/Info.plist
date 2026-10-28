@@ -20,8 +20,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>LSUIElement</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Viracm reads your camera to blur everyone except you before the video reaches your calling apps. Video never leaves this Mac.</string>
+	<string>Vircam reads your camera to blur everyone except you before the video reaches your calling apps. Video never leaves this Mac.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

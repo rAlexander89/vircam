@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Viracm Camera</string>
+	<string>Vircam Camera</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,8 +28,8 @@
 		<string>$(TeamIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	</dict>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>Viracm Camera lets calling apps use the privacy-protected video from Viracm.</string>
-	<key>ViracmAppSigningIdentifier</key>
-	<string>$(VIRACM_BUNDLE_ID)</string>
+	<string>Vircam Camera lets calling apps use the privacy-protected video from Vircam.</string>
+	<key>VircamAppSigningIdentifier</key>
+	<string>$(VIRCAM_BUNDLE_ID)</string>
 </dict>
 </plist>

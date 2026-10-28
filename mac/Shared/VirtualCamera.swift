@@ -1,12 +1,12 @@
 import CoreVideo
 import Foundation
 
-/// Identity and video format of the "Viracm Camera" device, shared by the app and the
+/// Identity and video format of the "Vircam Camera" device, shared by the app and the
 /// camera extension. IDs are fixed so calling apps remember the selected camera.
 enum VirtualCamera {
-    static let deviceName = "Viracm Camera"
-    static let deviceModel = "Viracm Privacy Camera"
-    static let manufacturer = "Viracm"
+    static let deviceName = "Vircam Camera"
+    static let deviceModel = "Vircam Privacy Camera"
+    static let manufacturer = "Vircam"
 
     static let deviceID = UUID(uuidString: "B2C359E2-B0F0-4CF3-9D9F-C735DBFEF749")!
     static let sourceStreamID = UUID(uuidString: "3CFDC5F0-E85B-4F93-8761-A178D2388665")!

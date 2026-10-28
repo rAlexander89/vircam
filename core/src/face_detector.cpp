@@ -5,7 +5,7 @@
 #include <array>
 #include <cmath>
 
-namespace viracm {
+namespace vircam {
 namespace {
 
 // face_detection_yunet_2023mar.onnx has a fixed 1x3x640x640 BGR input (values 0-255);
@@ -29,7 +29,7 @@ std::vector<Face> non_max_suppression(std::vector<Face> faces, float threshold) 
 }  // namespace
 
 struct FaceDetector::Impl {
-    Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "viracm"};
+    Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "vircam"};
     Ort::Session session{nullptr};
     Ort::MemoryInfo memory = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     std::vector<float> input = std::vector<float>(3 * kInputSize * kInputSize);
@@ -59,7 +59,7 @@ FaceDetector::FaceDetector(const std::string &model_path, float score_threshold,
 
 FaceDetector::~FaceDetector() = default;
 
-std::vector<Face> FaceDetector::detect(const viracm_image &image) {
+std::vector<Face> FaceDetector::detect(const vircam_image &image) {
     const float scale = std::min(static_cast<float>(kInputSize) / image.width,
                                  static_cast<float>(kInputSize) / image.height);
     const int resized_w = std::max(1, static_cast<int>(image.width * scale));
@@ -122,4 +122,4 @@ std::vector<Face> FaceDetector::detect(const viracm_image &image) {
     return non_max_suppression(std::move(faces), nms_threshold_);
 }
 
-}  // namespace viracm
+}  // namespace vircam

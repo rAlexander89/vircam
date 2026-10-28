@@ -7,7 +7,7 @@
 #include "primary_region.hpp"
 #include "face_tracker.hpp"
 #include "privacy_policy.hpp"
-#include "viracm/viracm.h"
+#include "vircam/vircam.h"
 
 #define CHECK(cond)                                                                       \
     do {                                                                                  \
@@ -17,7 +17,7 @@
         }                                                                                 \
     } while (0)
 
-using namespace viracm;
+using namespace vircam;
 
 namespace {
 
@@ -26,7 +26,7 @@ constexpr int kWidth = 1280;
 
 struct Frame {
     std::vector<uint8_t> pixels;
-    viracm_image image;
+    vircam_image image;
     Frame(int w, int h) : pixels(static_cast<size_t>(w) * h * 4), image{nullptr, w, h, w * 4} {
         image.data = pixels.data();
     }
@@ -62,7 +62,7 @@ void render(Compositor &compositor, Frame &in, Frame &out, const PolicyDecision 
 // coordinates for a kWidth x 720 frame.
 struct Mask {
     std::vector<float> values;
-    viracm_person_mask mask;
+    vircam_person_mask mask;
     Mask(float cx, float cy, float rx, float ry, int w = 256, int h = 144) : values(static_cast<size_t>(w) * h, 0.0f) {
         const float s = static_cast<float>(w) / kWidth;
         for (int y = 0; y < h; ++y)
@@ -266,7 +266,7 @@ void test_compositor_full_blur_without_primary() {
 void test_selects_mask_covering_primary_face() {
     const Box primary_face{540, 200, 200, 200};
     Mask other(1000, 300, 120, 250), user(640, 400, 250, 350);
-    const viracm_person_mask masks[] = {other.mask, user.mask};
+    const vircam_person_mask masks[] = {other.mask, user.mask};
     CHECK(select_person_mask(masks, 2, primary_face, kWidth, 720) == 1);
     CHECK(select_person_mask(masks, 1, primary_face, kWidth, 720) == -1);  // only the other person
     CHECK(select_person_mask(nullptr, 0, primary_face, kWidth, 720) == -1);
@@ -291,24 +291,24 @@ void test_mask_region_is_tighter_than_head_shape() {
 
 void test_engine_without_faces_fails_closed() {
     char error[256] = {0};
-    viracm_engine *engine = viracm_engine_create(VIRACM_MODEL_DIR, error, sizeof(error));
+    vircam_engine *engine = vircam_engine_create(VIRCAM_MODEL_DIR, error, sizeof(error));
     if (!engine) std::fprintf(stderr, "engine error: %s\n", error);
     CHECK(engine);
     Frame in = checkerboard(kWidth, 720), out(kWidth, 720);
-    viracm_frame_info info{};
-    CHECK(viracm_engine_process(engine, &in.image, &out.image, 0.0, &info) == VIRACM_OK);
-    CHECK(info.mode == VIRACM_FRAME_FULL_BLUR && info.faces_detected == 0);
+    vircam_frame_info info{};
+    CHECK(vircam_engine_process(engine, &in.image, &out.image, 0.0, &info) == VIRCAM_OK);
+    CHECK(info.mode == VIRCAM_FRAME_FULL_BLUR && info.faces_detected == 0);
     CHECK(is_blurred_gray(out.at(640, 360)));
-    viracm_engine_destroy(engine);
+    vircam_engine_destroy(engine);
 }
 
 void test_engine_rejects_bad_arguments() {
-    viracm_engine *engine = viracm_engine_create(VIRACM_MODEL_DIR, nullptr, 0);
+    vircam_engine *engine = vircam_engine_create(VIRCAM_MODEL_DIR, nullptr, 0);
     Frame in(64, 64), small(32, 32);
-    CHECK(viracm_engine_process(engine, &in.image, &small.image, 0.0, nullptr) == VIRACM_ERR_INVALID_ARGUMENT);
-    CHECK(viracm_engine_process(engine, &in.image, &in.image, 0.0, nullptr) == VIRACM_ERR_INVALID_ARGUMENT);
-    viracm_engine_destroy(engine);
-    CHECK(viracm_engine_create("/nonexistent", nullptr, 0) == nullptr);
+    CHECK(vircam_engine_process(engine, &in.image, &small.image, 0.0, nullptr) == VIRCAM_ERR_INVALID_ARGUMENT);
+    CHECK(vircam_engine_process(engine, &in.image, &in.image, 0.0, nullptr) == VIRCAM_ERR_INVALID_ARGUMENT);
+    vircam_engine_destroy(engine);
+    CHECK(vircam_engine_create("/nonexistent", nullptr, 0) == nullptr);
 }
 
 }  // namespace

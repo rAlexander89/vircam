@@ -5,9 +5,9 @@
 #include <vector>
 
 #include "types.hpp"
-#include "viracm/viracm.h"
+#include "vircam/vircam.h"
 
-namespace viracm {
+namespace vircam {
 
 // YuNet face detector on ONNX Runtime. Not thread-safe.
 class FaceDetector {
@@ -20,7 +20,7 @@ public:
     ~FaceDetector();
 
     // Faces in `image` pixel coordinates, highest score first.
-    std::vector<Face> detect(const viracm_image &image);
+    std::vector<Face> detect(const vircam_image &image);
 
 private:
     struct Impl;
@@ -29,4 +29,4 @@ private:
     float nms_threshold_;
 };
 
-}  // namespace viracm
+}  // namespace vircam

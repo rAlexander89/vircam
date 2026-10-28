@@ -4,7 +4,7 @@
 
 #include "types.hpp"
 
-namespace viracm {
+namespace vircam {
 
 struct Track {
     int id = 0;
@@ -32,4 +32,4 @@ private:
     std::vector<Track> tracks_;
 };
 
-}  // namespace viracm
+}  // namespace vircam

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace viracm {
+namespace vircam {
 
 // Axis-aligned box in pixels, top-left origin.
 struct Box {
@@ -27,4 +27,4 @@ struct Face {
     float score = 0;
 };
 
-}  // namespace viracm
+}  // namespace vircam

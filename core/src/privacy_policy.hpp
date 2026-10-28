@@ -5,7 +5,7 @@
 
 #include "face_tracker.hpp"
 
-namespace viracm {
+namespace vircam {
 
 // Values from the privacy rules in PLAN.md.
 struct PolicyConfig {
@@ -52,4 +52,4 @@ private:
     double challenger_since_ = 0;
 };
 
-}  // namespace viracm
+}  // namespace vircam

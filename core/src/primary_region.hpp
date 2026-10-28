@@ -3,9 +3,9 @@
 #include <vector>
 
 #include "types.hpp"
-#include "viracm/viracm.h"
+#include "vircam/vircam.h"
 
-namespace viracm {
+namespace vircam {
 
 struct PixelRange {
     int x0 = 0, y0 = 0, x1 = 0, y1 = 0;  // half-open
@@ -32,9 +32,9 @@ struct AlphaMap {
 AlphaMap head_and_shoulders(const Box &face, int width, int height);
 
 // The person mask scaled to the frame, with its soft edge sharpened.
-AlphaMap from_person_mask(const viracm_person_mask &mask, int width, int height);
+AlphaMap from_person_mask(const vircam_person_mask &mask, int width, int height);
 
 // Index of the mask that best covers `face`, or -1 if none covers enough of it.
-int select_person_mask(const viracm_person_mask *masks, int count, const Box &face, int width, int height);
+int select_person_mask(const vircam_person_mask *masks, int count, const Box &face, int width, int height);
 
-}  // namespace viracm
+}  // namespace vircam

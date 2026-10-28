@@ -2,12 +2,13 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var controller: AppController
+    @EnvironmentObject private var updater: Updater
+    @EnvironmentObject private var loginItem: LoginItem
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             PreviewView(renderer: controller.preview)
-                .aspectRatio(16.0 / 9.0, contentMode: .fit)
-                .frame(minWidth: 480)
+                .frame(width: 528, height: 297)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Text("Mirrored like your self-view in Zoom and Meet. Others see you unmirrored.")
@@ -15,21 +16,45 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
 
             Form {
+                Toggle("Vircam On", isOn: $controller.isOn)
                 Picker("Camera", selection: $controller.selectedCameraID) {
                     ForEach(controller.cameras) { camera in
                         Text(camera.name).tag(Optional(camera.id))
                     }
                 }
-                LabeledContent("Status", value: controller.cameraStatus)
+                LabeledContent("Status") {
+                    HStack {
+                        Text(controller.cameraStatus)
+                        if controller.needsCameraAccess {
+                            Button("Allow Camera Access…") { controller.allowCameraAccess() }
+                        }
+                    }
+                }
                 LabeledContent("Protection", value: controller.protectionStatus)
                 LabeledContent("Faces", value: controller.facesStatus)
                 LabeledContent("Performance", value: controller.performanceStatus)
+                Toggle("Open at Login", isOn: Binding(get: { loginItem.isEnabled }, set: { loginItem.set($0) }))
+                if let error = loginItem.error {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Toggle("Show detection boxes (also visible in calls)", isOn: $controller.debugOverlay)
-                LabeledContent("Viracm Camera") {
+                LabeledContent("Vircam Camera") {
                     HStack {
                         Text(controller.virtualCameraConnected ? "Sending video" : "Not installed or not running")
                         if !controller.virtualCameraConnected {
                             Button("Install…") { controller.installCamera() }
+                        }
+                    }
+                }
+                if let status = updater.status {
+                    LabeledContent("Update", value: status)
+                } else if let release = updater.available {
+                    LabeledContent("Update") {
+                        HStack {
+                            Text("Vircam \(release.version) is available (you have \(updater.currentVersion)).")
+                            Button("Update") { updater.install() }
                         }
                     }
                 }
@@ -41,6 +66,7 @@ struct ContentView: View {
             }
         }
         .padding()
-        .frame(minWidth: 560)
+        .frame(width: 560)
+        .fixedSize()
     }
 }

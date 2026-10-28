@@ -1,5 +1,5 @@
 build/
-mac/Viracm.xcodeproj/
+mac/Vircam.xcodeproj/
 mac/Config/Local.xcconfig
 models/
 .DS_Store

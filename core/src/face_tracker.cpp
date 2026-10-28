@@ -3,7 +3,7 @@
 #include <cmath>
 #include <tuple>
 
-namespace viracm {
+namespace vircam {
 namespace {
 
 // How strongly a detection belongs to a track. Overlap first; a fast-moving face with
@@ -48,4 +48,4 @@ void FaceTracker::update(const std::vector<Face> &faces, double t) {
     }
 }
 
-}  // namespace viracm
+}  // namespace vircam

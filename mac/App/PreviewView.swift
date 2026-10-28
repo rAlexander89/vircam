@@ -41,6 +41,10 @@ final class PreviewRenderer {
         }
         renderer.enqueue(sampleBuffer)
     }
+
+    func clear() {
+        layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
+    }
 }
 
 struct PreviewView: NSViewRepresentable {

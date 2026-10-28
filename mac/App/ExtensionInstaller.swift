@@ -1,7 +1,7 @@
 import Foundation
 import SystemExtensions
 
-/// Activates the Viracm Camera system extension embedded in the app bundle.
+/// Activates the Vircam Camera system extension embedded in the app bundle.
 /// Requires a build signed with an Apple Developer team, run from /Applications.
 final class ExtensionInstaller: NSObject, OSSystemExtensionRequestDelegate {
     var onStatus: ((String) -> Void)?
@@ -12,7 +12,7 @@ final class ExtensionInstaller: NSObject, OSSystemExtensionRequestDelegate {
 
     func activate() {
         guard Bundle.main.bundlePath.hasPrefix("/Applications/") else {
-            onStatus?("Move Viracm to /Applications before installing the camera.")
+            onStatus?("Move Vircam to /Applications before installing the camera.")
             return
         }
         let request = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: extensionIdentifier, queue: .main)
@@ -28,7 +28,7 @@ final class ExtensionInstaller: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {
-        onStatus?("Approve Viracm in System Settings › General › Login Items & Extensions › Camera Extensions.")
+        onStatus?("Approve Vircam in System Settings › General › Login Items & Extensions › Camera Extensions.")
     }
 
     func request(_ request: OSSystemExtensionRequest, didFinishWithResult result: OSSystemExtensionRequest.Result) {

@@ -1,0 +1,36 @@
+// Build settings shared by the app and the camera extension.
+// To sign with your Apple Developer team (required to activate the camera extension),
+// copy Local.xcconfig.example to Local.xcconfig and fill it in.
+//
+// VIRCAM_SIGNED:
+//   NO  - ad-hoc signed; runs, but cannot install the camera extension
+//   YES - signed with DEVELOPMENT_TEAM; installs the camera extension normally
+//   DEV - signed with VIRCAM_DEV_IDENTITY (ad-hoc unless scripts/make_signing_cert.sh
+//         set it) and the extension-install entitlement. Only launches on a Mac with SIP
+//         disabled and boot-args amfi_get_out_of_my_way=1 (see README). Releases must use
+//         the certificate so camera permission survives updates.
+
+VIRCAM_BUNDLE_ID = dev.vircam.Vircam
+VIRCAM_SIGNED = NO
+DEVELOPMENT_TEAM =
+VIRCAM_DEV_IDENTITY = -
+
+#include? "Local.xcconfig"
+
+VIRCAM_APP_ENTITLEMENTS_NO = App/Vircam-AdHoc.entitlements
+VIRCAM_APP_ENTITLEMENTS_YES = App/Vircam.entitlements
+VIRCAM_APP_ENTITLEMENTS_DEV = App/Vircam-DevMode.entitlements
+VIRCAM_APP_ENTITLEMENTS = $(VIRCAM_APP_ENTITLEMENTS_$(VIRCAM_SIGNED))
+
+VIRCAM_SIGN_IDENTITY_NO = -
+VIRCAM_SIGN_IDENTITY_YES = Apple Development
+VIRCAM_SIGN_IDENTITY_DEV = $(VIRCAM_DEV_IDENTITY)
+VIRCAM_SIGN_IDENTITY = $(VIRCAM_SIGN_IDENTITY_$(VIRCAM_SIGNED))
+
+VIRCAM_SIGN_STYLE_NO = Manual
+VIRCAM_SIGN_STYLE_YES = Automatic
+VIRCAM_SIGN_STYLE_DEV = Manual
+VIRCAM_SIGN_STYLE = $(VIRCAM_SIGN_STYLE_$(VIRCAM_SIGNED))
+
+VIRCAM_CORE_BUILD_DIR = $(PROJECT_DIR)/../build/core/xcode-$(CONFIGURATION)
+VIRCAM_ORT_DIR = $(PROJECT_DIR)/../third_party/onnxruntime
