@@ -1,8 +1,8 @@
 # Vircam
 
-A virtual camera that keeps **only you** sharp and blurs every other person and face,
-on your own machine. Calling apps (Zoom, Google Meet, or anything with a camera picker)
-use it like a normal webcam.
+A virtual camera app for video call apps like Zoom and Google Meet that keep you sharp and everyone else blurry. 
+
+I like to work remotely from coffee shops and I got sick of having floating heads appear on my calls. The worst is when they're just sitting their, minding their own business, yet Zoom and Google Meet make them a permanent fixture in your phone call.
 
 ![Zoom, Google Meet, and Vircam side by side](docs/comparison.png)
 
